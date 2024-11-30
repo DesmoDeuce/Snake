@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -22,22 +24,36 @@ public class Screen extends JPanel implements ActionListener {
     public static RectSprite apple;
     public static int score = 0;
     public static int speed = 400;
-    public static ArrayList<Position> kurt = new ArrayList<>();
+    public static boolean sight = false;
+    public static boolean dangerCake = true;
+    public static boolean running = true;
+    public static boolean dead = false;
     public static Timer timer;
 
-    public Screen() {
+    public Screen() throws IOException {
         grid = new Grid(new Size(15, 15), new Size(49, 49), Color.GRAY);
-        head = new Head(new Position(grid.getPoss().get(112).getX(), grid.getPoss().get(112).getY()), grid.getRectSize(), new Color(0, 200, 0), Directions.EAST);
+        head = new Head(new Position(grid.getXs().get(7), grid.getYs().get(7)), grid.getRectSize(), new Color(0, 200, 0), Directions.EAST);
         apple = new RectSprite(grid.getPoss().get(new Random().nextInt(grid.getPoss().size())), grid.getRectSize(), false, Color.RED);
 
         timer = new Timer(speed, this);
         timer.start();
+
+        //LogCompact.logInit();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        DangerCake.cake();
-        head.move();
+        if (running) {
+            if (dangerCake) {
+                DangerCake.cake();
+            }
+            head.move();
+            /*try {
+                LogCompact.addState();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }*/
+        }
 
         repaint();
     }
@@ -47,11 +63,20 @@ public class Screen extends JPanel implements ActionListener {
         super.paintComponent(g);
         setBackground(Color.BLACK);
         grid.draw((Graphics2D) g);
-        g.setColor(Color.ORANGE);
-        for (Position pos : kurt) {
-            g.fillRect(pos.getX(), pos.getY(), grid.getRectSize().getWidth(), grid.getRectSize().getHeight());
-        }
+
         apple.draw((Graphics2D) g);
+
+        for (RectSprite body : head.getBody()) {
+            body.draw((Graphics2D) g);
+        }
+
+        if (sight) {
+            g.setColor(Color.ORANGE);
+            for (Position pos : DangerCake.availableSquares(head.getPos())) {
+                g.fillRect(pos.getX(), pos.getY(), 49, 49);
+            }
+        }
+
         head.draw((Graphics2D) g);
     }
 
@@ -59,8 +84,10 @@ public class Screen extends JPanel implements ActionListener {
 
         @Override
         public void keyPressed(KeyEvent e) {
-            head.keyPressed(e);
-            if (e.getExtendedKeyCode() == KeyEvent.VK_MINUS) {
+            if (running) {
+                head.keyPressed(e);
+            }
+            if (e.getExtendedKeyCode() == KeyEvent.VK_EQUALS) {
                 speed -= 10;
                 if (speed < 1) {
                     speed = 1;
@@ -68,7 +95,7 @@ public class Screen extends JPanel implements ActionListener {
                 timer.setDelay(speed);
                 System.out.println("Speed: " + speed);
             }
-            if (e.getExtendedKeyCode() == KeyEvent.VK_EQUALS) {
+            if (e.getExtendedKeyCode() == KeyEvent.VK_MINUS) {
                 speed += 10;
                 if (speed == 11) {
                     speed = 10;
@@ -77,12 +104,41 @@ public class Screen extends JPanel implements ActionListener {
                 System.out.println("Speed: " + speed);
             }
             if (e.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
-                if (timer.isRunning()) {
-                    timer.stop();
-                } else {
-                    timer.start();
+                if (running) {
+                    running = false;
+                    timer.setDelay(20);
+                } else if (!dead) {
+                    /*try {
+                        LogCompact.callState(LogCompact.totalStates);
+                    } catch (FileNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }*/
+                    running = true;
+                    timer.setDelay(speed);
                 }
             }
+            if (e.getExtendedKeyCode() == KeyEvent.VK_E) {
+                sight = !sight;
+            }
+            if (e.isControlDown() && e.isAltDown() && e.getExtendedKeyCode() == KeyEvent.VK_C) {
+                dangerCake = !dangerCake;
+            }
+            /*if (!running) {
+                if (e.getExtendedKeyCode() == KeyEvent.VK_LEFT) {
+                    try {
+                        LogCompact.callState(LogCompact.stateShown - 1);
+                    } catch (FileNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                if (e.getExtendedKeyCode() == KeyEvent.VK_RIGHT) {
+                    try {
+                        LogCompact.callState(LogCompact.stateShown + 1);
+                    } catch (FileNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }*/
         }
     }
 }

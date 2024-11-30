@@ -39,14 +39,6 @@ public class Head extends RectSprite {
         }
     }
 
-    @Override
-    public void draw(Graphics2D graphics) {
-        super.draw(graphics);
-        for (RectSprite rect : body) {
-            rect.draw(graphics);
-        }
-    }
-
     public void move() {
         dir = next;
         for (int n = body.size() - 1; n >= 0; n--) {
@@ -91,20 +83,25 @@ public class Head extends RectSprite {
             Snake.snake.setTitle("Snake | Score: " + Screen.score);
 
             ArrayList<Position> open = Screen.grid.getPoss();
+            ArrayList<Position> remove = new ArrayList<>();
             open.remove(getPos());
             for (RectSprite b : body) {
-                for (Position position : Screen.grid.getPoss()) {
-                    if (b.getPos().getX() == position.getX() && b.getPos().getY() == position.getY()) {
-                        open.remove(new Position(position.getX(), position.getY()));
+                for (Position position : open) {
+                    if (b.getPos().intsEqual(position)) {
+                        remove.add(position);
                     }
                 }
+            }
+            for (Position position : remove) {
+                open.remove(position);
             }
             Screen.apple.setPos(open.get(new Random().nextInt(open.size())));
         }
     }
 
     public void die() {
-        Screen.timer.stop();
+        Screen.running = false;
+        Screen.dead = true;
         /*
         Screen.score = 0;
         setPos(new Position(Screen.grid.getPoss().get(112).getX(), Screen.grid.getPoss().get(112).getY()));
