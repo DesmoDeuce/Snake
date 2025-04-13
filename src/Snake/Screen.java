@@ -12,31 +12,29 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
 
 public class Screen extends JPanel implements ActionListener {
 
     public static Grid grid;
     public static Head head;
-    public static RectSprite apple;
     public static int score = 0;
     public static int speed = 400;
     public static boolean sight = false;
     public static boolean dangerCake = true;
     public static boolean running = true;
-    public static boolean dead = false;
     public static Timer timer;
 
     public Screen() throws IOException {
         grid = new Grid(new Size(15, 15), new Size(49, 49), Color.GRAY);
         head = new Head(new Position(grid.getXs().get(7), grid.getYs().get(7)), grid.getRectSize(), new Color(0, 200, 0), Directions.EAST);
-        apple = new RectSprite(grid.getPoss().get(new Random().nextInt(grid.getPoss().size())), grid.getRectSize(), false, Color.RED);
+        for (int n = 0; n < 19; n++) {
+            new Head(new Position(grid.getXs().get(7), grid.getYs().get(7)), grid.getRectSize(), new Color(0, 200, 0), Directions.EAST);
+        }
 
-        timer = new Timer(speed, this);
-        timer.start();
+        Training.training2nd();
+        //timer = new Timer(speed, this);
+        //timer.start();
 
         //LogCompact.logInit();
     }
@@ -45,9 +43,15 @@ public class Screen extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (running) {
             if (dangerCake) {
-                DangerCake.cake();
+                for (Head heads : Head.heads) {
+                    DangerCake.cake(heads, 3, 3, 1);
+                }
             }
-            head.move();
+            for (Head heads : Head.heads) {
+                if (heads.isAlive()) {
+                    heads.move();
+                }
+            }
             /*try {
                 LogCompact.addState();
             } catch (IOException ex) {
@@ -64,20 +68,26 @@ public class Screen extends JPanel implements ActionListener {
         setBackground(Color.BLACK);
         grid.draw((Graphics2D) g);
 
-        apple.draw((Graphics2D) g);
-
-        for (RectSprite body : head.getBody()) {
-            body.draw((Graphics2D) g);
+        for (Head heads : Head.heads) {
+            if (heads.isAlive()) {
+                for (RectSprite body : heads.getBody()) {
+                    body.draw((Graphics2D) g);
+                }
+            }
         }
 
         if (sight) {
             g.setColor(Color.ORANGE);
-            for (Position pos : DangerCake.availableSquares(head.getPos())) {
+            for (Position pos : DangerCake.availableSquares(head, head.getPos())) {
                 g.fillRect(pos.getX(), pos.getY(), 49, 49);
             }
         }
 
-        head.draw((Graphics2D) g);
+        for (Head heads : Head.heads) {
+            if (heads.isAlive()) {
+                heads.draw((Graphics2D) g);
+            }
+        }
     }
 
     public static class Keyboard extends KeyAdapter {
@@ -107,7 +117,7 @@ public class Screen extends JPanel implements ActionListener {
                 if (running) {
                     running = false;
                     timer.setDelay(20);
-                } else if (!dead) {
+                } else {
                     /*try {
                         LogCompact.callState(LogCompact.totalStates);
                     } catch (FileNotFoundException ex) {

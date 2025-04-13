@@ -28,7 +28,7 @@ public class Log {
         statesBuilder.add(Json.createObjectBuilder()
                 .add("head", Json.createArrayBuilder().add(Screen.head.getPos().getX()).add(Screen.head.getPos().getY()))
                 .add("body", bodyBuilder)
-                .add("apple", Json.createArrayBuilder().add(Screen.apple.getPos().getX()).add(Screen.apple.getPos().getY())));
+                .add("apple", Json.createArrayBuilder().add(Screen.head.getApple().getPos().getX()).add(Screen.head.getApple().getPos().getY())));
 
         //writes the updated json
         JsonWriter writer = Json.createWriter(new FileWriter("log.json"));
@@ -57,7 +57,7 @@ public class Log {
         statesBuilder.add(Json.createObjectBuilder()
                 .add("head", Json.createArrayBuilder().add(Screen.head.getPos().getX()).add(Screen.head.getPos().getY()))
                 .add("body", bodyBuilder)
-                .add("apple", Json.createArrayBuilder().add(Screen.apple.getPos().getX()).add(Screen.apple.getPos().getY())));
+                .add("apple", Json.createArrayBuilder().add(Screen.head.getApple().getPos().getX()).add(Screen.head.getApple().getPos().getY())));
 
         //writes the updated json
         JsonWriter writer = Json.createWriter(new FileWriter("log.json"));
@@ -94,7 +94,7 @@ public class Log {
             }
             //sets the apples position
             JsonArray applePosArray = state.getJsonArray("apple");
-            Screen.apple.setPos(new Position(applePosArray.getInt(0), applePosArray.getInt(1)));
+            Screen.head.getApple().setPos(new Position(applePosArray.getInt(0), applePosArray.getInt(1)));
             stateShown = stateNumber;
         }
     }

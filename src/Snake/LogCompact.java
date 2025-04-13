@@ -20,7 +20,7 @@ public class LogCompact {
         //adds all the info to the builder
         statesBuilder.add(Json.createObjectBuilder()
                 .add("dir", "NONE")
-                .add("apple", Json.createArrayBuilder().add(Screen.apple.getPos().getX()).add(Screen.apple.getPos().getY())));
+                .add("apple", Json.createArrayBuilder().add(Screen.head.getApple().getPos().getX()).add(Screen.head.getApple().getPos().getY())));
 
         //writes the updated json
         JsonWriter writer = Json.createWriter(new FileWriter("log.json"));
@@ -42,7 +42,7 @@ public class LogCompact {
         //adds all the info to the builder
         statesBuilder.add(Json.createObjectBuilder()
                 .add("dir", Screen.head.getDir())
-                .add("apple", Json.createArrayBuilder().add(Screen.apple.getPos().getX()).add(Screen.apple.getPos().getY())));
+                .add("apple", Json.createArrayBuilder().add(Screen.head.getApple().getPos().getX()).add(Screen.head.getApple().getPos().getY())));
 
         //writes the updated json
         JsonWriter writer = Json.createWriter(new FileWriter("log.json"));
@@ -62,13 +62,13 @@ public class LogCompact {
             Snake.snake.setTitle("Snake | Score: " + Screen.score);
             Screen.head.setPos(new Position(Screen.grid.getXs().get(7), Screen.grid.getYs().get(7 )));
             JsonArray startAppleArray = statesArray.getJsonObject(0).getJsonArray("apple");
-            Screen.apple.setPos(new Position(startAppleArray.getInt(0), startAppleArray.getInt(1)));
+            Screen.head.getApple().setPos(new Position(startAppleArray.getInt(0), startAppleArray.getInt(1)));
             for (int n = 1; n <= stateNumber; n++) {
                 JsonObject state = statesArray.getJsonObject(n);
                 Screen.head.setNext(state.getString("dir"));
                 Screen.head.move();
                 JsonArray appleArray = state.getJsonArray("apple");
-                Screen.apple.setPos(new Position(appleArray.getInt(0), appleArray.getInt(1)));
+                Screen.head.getApple().setPos(new Position(appleArray.getInt(0), appleArray.getInt(1)));
             }
             stateShown = stateNumber;
         }

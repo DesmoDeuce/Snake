@@ -8,17 +8,11 @@ import java.util.ArrayList;
 
 public class DangerCake {
 
-    public static final double munch = 0.6;
-    public static final double death = 9;
-    public static final double surrounded = 3;
-    public static final double split = 3;
-    public static final double edge = 1;
-    public static double bordering = .01 * Screen.head.getBody().size();
-    public static final double change = .125;
-
     //manages the DangerCake algorithm.
-    public static void cake() {
-        bordering = (munch / 60) * Screen.head.getBody().size();
+    public static void cake(Head head, double surrounded, double split, double edge) {
+        double munch = 0.6;
+        double death = 100;
+        double bordering = (munch / 60) * head.getBody().size();
         if (bordering > munch * ((double) 5 / 3)) {
             bordering = munch * ((double) 5 / 3) - (munch / 60);
         }
@@ -27,52 +21,95 @@ public class DangerCake {
         double eDanger = 0;
         double wDanger = 0;
 
-        nDanger += munch(Directions.NORTH);
-        sDanger += munch(Directions.SOUTH);
-        eDanger += munch(Directions.EAST);
-        wDanger += munch(Directions.WEST);
-
-        nDanger += edge(Directions.NORTH);
-        sDanger += edge(Directions.SOUTH);
-        eDanger += edge(Directions.EAST);
-        wDanger += edge(Directions.WEST);
-
-        nDanger += bordering(Directions.NORTH);
-        sDanger += bordering(Directions.SOUTH);
-        eDanger += bordering(Directions.EAST);
-        wDanger += bordering(Directions.WEST);
-
-        nDanger += change(Directions.NORTH);
-        sDanger += change(Directions.SOUTH);
-        eDanger += change(Directions.EAST);
-        wDanger += change(Directions.WEST);
-
-        nDanger += split(Directions.NORTH);
-        sDanger += split(Directions.SOUTH);
-        eDanger += split(Directions.EAST);
-        wDanger += split(Directions.WEST);
-
-        nDanger += surrounded(Directions.NORTH);
-        sDanger += surrounded(Directions.SOUTH);
-        eDanger += surrounded(Directions.EAST);
-        wDanger += surrounded(Directions.WEST);
-
-        nDanger += death(Directions.NORTH);
-        sDanger += death(Directions.SOUTH);
-        eDanger += death(Directions.EAST);
-        wDanger += death(Directions.WEST);
-
-        if (Screen.head.getDir().equals(Directions.NORTH)) {
-            sDanger = 100;
+        if (munch(head, Directions.NORTH)) {
+            nDanger += munch;
         }
-        if (Screen.head.getDir().equals(Directions.SOUTH)) {
-            nDanger = 100;
+        if (munch(head, Directions.SOUTH)) {
+            sDanger += munch;
         }
-        if (Screen.head.getDir().equals(Directions.EAST)) {
-            wDanger = 100;
+        if (munch(head, Directions.EAST)) {
+            eDanger += munch;
         }
-        if (Screen.head.getDir().equals(Directions.WEST)) {
-            eDanger = 100;
+        if (munch(head, Directions.WEST)) {
+            wDanger += munch;
+        }
+
+        if (edge(head, Directions.NORTH)) {
+            nDanger += edge;
+        }
+        if (edge(head, Directions.SOUTH)) {
+            sDanger += edge;
+        }
+        if (edge(head, Directions.EAST)) {
+            eDanger += edge;
+        }
+        if (edge(head, Directions.WEST)) {
+            wDanger += edge;
+        }
+
+        if (bordering(head, Directions.NORTH)) {
+            nDanger += bordering;
+        }
+        if (bordering(head, Directions.SOUTH)) {
+            sDanger += bordering;
+        }
+        if (bordering(head, Directions.EAST)) {
+            eDanger += bordering;
+        }
+        if (bordering(head, Directions.WEST)) {
+            wDanger += bordering;
+        }
+
+        if (split(head, Directions.NORTH)) {
+            nDanger += split;
+        }
+        if (split(head, Directions.SOUTH)) {
+            sDanger += split;
+        }
+        if (split(head, Directions.EAST)) {
+            eDanger += split;
+        }
+        if (split(head, Directions.WEST)) {
+            wDanger += split;
+        }
+
+        if (surrounded(head, Directions.NORTH)) {
+            nDanger += surrounded;
+        }
+        if (surrounded(head, Directions.SOUTH)) {
+            sDanger += surrounded;
+        }
+        if (surrounded(head, Directions.EAST)) {
+            eDanger += surrounded;
+        }
+        if (surrounded(head, Directions.WEST)) {
+            wDanger += surrounded;
+        }
+
+        if (death(head, Directions.NORTH)) {
+            nDanger += death;
+        }
+        if (death(head, Directions.SOUTH)) {
+            sDanger += death;
+        }
+        if (death(head, Directions.EAST)) {
+            eDanger += death;
+        }
+        if (death(head, Directions.WEST)) {
+            wDanger += death;
+        }
+
+        if (head.getDir().equals(Directions.NORTH)) {
+            sDanger = 10000;
+        }
+        if (head.getDir().equals(Directions.SOUTH)) {
+            nDanger = 10000;
+        }
+        if (head.getDir().equals(Directions.EAST)) {
+            wDanger = 10000;
+        }
+        if (head.getDir().equals(Directions.WEST)) {
+            eDanger = 10000;
         }
 
         //checks if everywhere is surrounded
@@ -83,39 +120,39 @@ public class DangerCake {
             int highestSize = 0;
             String highestDir = "NONE";
             if (nDanger < death
-                    && availableSquares(Screen.head.getPos().add(Directions.NORTH, Screen.grid)).size() > highestSize) {
-                highestSize = availableSquares(Screen.head.getPos().add(Directions.NORTH, Screen.grid)).size();
+                    && availableSquares(head, head.getPos().add(Directions.NORTH, Screen.grid)).size() > highestSize) {
+                highestSize = availableSquares(head, head.getPos().add(Directions.NORTH, Screen.grid)).size();
                 highestDir = Directions.NORTH;
             }
             if (sDanger < death) {
-                if (availableSquares(Screen.head.getPos().add(Directions.SOUTH, Screen.grid)).size() > highestSize) {
-                    highestSize = availableSquares(Screen.head.getPos().add(Directions.SOUTH, Screen.grid)).size();
+                if (availableSquares(head, head.getPos().add(Directions.SOUTH, Screen.grid)).size() > highestSize) {
+                    highestSize = availableSquares(head, head.getPos().add(Directions.SOUTH, Screen.grid)).size();
                     highestDir = Directions.SOUTH;
-                } else if (availableSquares(Screen.head.getPos().add(Directions.SOUTH, Screen.grid)).size() == highestSize
+                } else if (availableSquares(head, head.getPos().add(Directions.SOUTH, Screen.grid)).size() == highestSize
                         && !highestDir.equals("NONE")) {
-                    if (edge(highestDir) > edge(Directions.SOUTH)) {
+                    if (edge(head, highestDir) && !edge(head, Directions.SOUTH)) {
                         highestDir = Directions.SOUTH;
                     }
                 }
             }
             if (eDanger < death) {
-                if (availableSquares(Screen.head.getPos().add(Directions.EAST, Screen.grid)).size() > highestSize) {
-                    highestSize = availableSquares(Screen.head.getPos().add(Directions.EAST, Screen.grid)).size();
+                if (availableSquares(head, head.getPos().add(Directions.EAST, Screen.grid)).size() > highestSize) {
+                    highestSize = availableSquares(head, head.getPos().add(Directions.EAST, Screen.grid)).size();
                     highestDir = Directions.EAST;
-                } else if (availableSquares(Screen.head.getPos().add(Directions.EAST, Screen.grid)).size() == highestSize
+                } else if (availableSquares(head, head.getPos().add(Directions.EAST, Screen.grid)).size() == highestSize
                         && !highestDir.equals("NONE")) {
-                    if (edge(highestDir) > edge(Directions.EAST)) {
+                    if (edge(head, highestDir) && !edge(head, Directions.EAST)) {
                         highestDir = Directions.EAST;
                     }
                 }
             }
             if (wDanger < death) {
-                if (availableSquares(Screen.head.getPos().add(Directions.WEST, Screen.grid)).size() > highestSize) {
-                    highestSize = availableSquares(Screen.head.getPos().add(Directions.WEST, Screen.grid)).size();
+                if (availableSquares(head, head.getPos().add(Directions.WEST, Screen.grid)).size() > highestSize) {
+                    highestSize = availableSquares(head, head.getPos().add(Directions.WEST, Screen.grid)).size();
                     highestDir = Directions.WEST;
-                } else if (availableSquares(Screen.head.getPos().add(Directions.WEST, Screen.grid)).size() == highestSize
+                } else if (availableSquares(head, head.getPos().add(Directions.WEST, Screen.grid)).size() == highestSize
                         && !highestDir.equals("NONE")) {
-                    if (edge(highestDir) > edge(Directions.WEST)) {
+                    if (edge(head, highestDir) && !edge(head, Directions.WEST)) {
                         highestDir = Directions.WEST;
                     }
                 }
@@ -155,124 +192,116 @@ public class DangerCake {
             least = Directions.WEST;
         }
 
-        Screen.head.setNext(least);
+        head.setNext(least);
     }
 
     //determines if a given direction is towards the apple
-    public static double munch(String dir) {
-        if (Screen.apple.getPos().getY() == Screen.grid.getYs().get(0)) {
-            for (RectSprite body : Screen.head.getBody()) {
+    public static boolean munch(Head head, String dir) {
+        if (head.getApple().getPos().getY() == Screen.grid.getYs().get(0)) {
+            for (RectSprite body : head.getBody()) {
                 if (body.getPos().getY() == Screen.grid.getYs().get(14)) {
-                    return 0;
+                    return false;
                 }
             }
         }
-        if (Screen.apple.getPos().getY() == Screen.grid.getYs().get(14)) {
-            for (RectSprite body : Screen.head.getBody()) {
+        if (head.getApple().getPos().getY() == Screen.grid.getYs().get(14)) {
+            for (RectSprite body : head.getBody()) {
                 if (body.getPos().getY() == Screen.grid.getYs().get(0)) {
-                    return 0;
+                    return false;
                 }
             }
         }
-        if (Screen.apple.getPos().getX() == Screen.grid.getXs().get(14)) {
-            for (RectSprite body : Screen.head.getBody()) {
+        if (head.getApple().getPos().getX() == Screen.grid.getXs().get(14)) {
+            for (RectSprite body : head.getBody()) {
                 if (body.getPos().getX() == Screen.grid.getXs().get(0)) {
-                    return 0;
+                    return false;
                 }
             }
         }
-        if (Screen.apple.getPos().getX() == Screen.grid.getXs().get(0)) {
-            for (RectSprite body : Screen.head.getBody()) {
+        if (head.getApple().getPos().getX() == Screen.grid.getXs().get(0)) {
+            for (RectSprite body : head.getBody()) {
                 if (body.getPos().getX() == Screen.grid.getXs().get(14)) {
-                    return 0;
+                    return false;
                 }
             }
         }
-        if (Screen.head.getPos().getY() >= Screen.apple.getPos().getY()
+        if (head.getPos().getY() >= head.getApple().getPos().getY()
                 && dir.equals(Directions.SOUTH)) {
-            return munch;
+            return true;
         }
-        if (Screen.head.getPos().getY() <= Screen.apple.getPos().getY()
+        if (head.getPos().getY() <= head.getApple().getPos().getY()
                 && dir.equals(Directions.NORTH)) {
-            return munch;
+            return true;
         }
-        if (Screen.head.getPos().getX() <= Screen.apple.getPos().getX()
+        if (head.getPos().getX() <= head.getApple().getPos().getX()
                 && dir.equals(Directions.WEST)) {
-            return munch;
+            return true;
         }
-        if (Screen.head.getPos().getX() >= Screen.apple.getPos().getX()
+        if (head.getPos().getX() >= head.getApple().getPos().getX()
                 && dir.equals(Directions.EAST)) {
-            return munch;
+            return true;
         }
-        for (RectSprite body : Screen.head.getBody()) {
-            if (body.getPos().intsEqual(Screen.apple.getPos())) {
-                return munch;
+        for (RectSprite body : head.getBody()) {
+            if (body.getPos().intsEqual(head.getApple().getPos())) {
+                return true;
             }
         }
-        return 0;
+        return false;
     }
 
     //determines if the head would be on the edge in a given direction
-    public static double edge(String dir) {
-        Position pos = Screen.head.getPos().add(dir, Screen.grid);
+    public static boolean edge(Head head, String dir) {
+        Position pos = head.getPos().add(dir, Screen.grid);
         if (pos.getX() == Screen.grid.getXs().get(0)
-                && Screen.apple.getPos().getX() != Screen.grid.getXs().get(0)) {
-            return edge;
+                && head.getApple().getPos().getX() != Screen.grid.getXs().get(0)) {
+            return true;
         }
         if (pos.getX() == Screen.grid.getXs().get(14)
-                && Screen.apple.getPos().getX() != Screen.grid.getXs().get(14)) {
-            return edge;
+                && head.getApple().getPos().getX() != Screen.grid.getXs().get(14)) {
+            return true;
         }
         if (pos.getY() == Screen.grid.getYs().get(0)
-                && Screen.apple.getPos().getY() != Screen.grid.getYs().get(0)) {
-            return edge;
+                && head.getApple().getPos().getY() != Screen.grid.getYs().get(0)) {
+            return true;
         }
         if (pos.getY() == Screen.grid.getYs().get(14)
-                && Screen.apple.getPos().getY() != Screen.grid.getYs().get(14)) {
-            return edge;
+                && head.getApple().getPos().getY() != Screen.grid.getYs().get(14)) {
+            return true;
         }
-        return 0;
+        return false;
     }
 
     //checks if the head would be next to a snake body
-    public static double bordering(String dir) {
-        Position pos = Screen.head.getPos().add(dir, Screen.grid);
+    public static boolean bordering(Head head, String dir) {
+        Position pos = head.getPos().add(dir, Screen.grid);
         Position nPos = pos.add(Directions.NORTH, Screen.grid);
         Position sPos = pos.add(Directions.SOUTH, Screen.grid);
         Position ePos = pos.add(Directions.EAST, Screen.grid);
         Position wPos = pos.add(Directions.WEST, Screen.grid);
 
-        for (RectSprite body : Screen.head.getBody()) {
+        for (RectSprite body : head.getBody()) {
             Position bodyPos = body.getPos();
-            if (Screen.head.getBody().indexOf(body) != Screen.head.getBody().size() - 1) {
+            if (head.getBody().indexOf(body) != head.getBody().size() - 1) {
                 if (nPos.intsEqual(bodyPos)) {
-                    return 0;
+                    return false;
                 }
                 if (sPos.intsEqual(bodyPos)) {
-                    return 0;
+                    return false;
                 }
                 if (ePos.intsEqual(bodyPos)) {
-                    return 0;
+                    return false;
                 }
                 if (wPos.intsEqual(bodyPos)) {
-                    return 0;
+                    return false;
                 }
             }
         }
-        return bordering;
-    }
-
-    //checks if the given direction is different then the previous direction
-    public static double change(String dir) {
-        if (Screen.head.getDir().equals(dir)) {
-            return change;
-        }
-        return 0;
+        return true;
     }
 
     //determines if the snake would split their area in half in a given direction
-    public static double split(String dir) {
-        Position pos1 = Screen.head.getPos().add(dir, Screen.grid).add(dir, Screen.grid);
+    public static boolean split(Head head, String dir) {
+        Position pos1 = head.getPos().add(dir, Screen.grid).add(dir, Screen.grid);
         Position pos2 = pos1;
         Position pos3 = pos1;
         if (dir.equals(Directions.NORTH) || dir.equals(Directions.SOUTH)) {
@@ -285,7 +314,7 @@ public class DangerCake {
         }
 
         boolean opposite = false;
-        for (RectSprite body : Screen.head.getBody()) {
+        for (RectSprite body : head.getBody()) {
             Position pos = body.getPos();
             if (dir.equals(Directions.NORTH)) {
                 if (pos.getY() == Screen.grid.getYs().get(14)) {
@@ -316,53 +345,53 @@ public class DangerCake {
         if (opposite) {
             if (pos1.getX() < Screen.grid.getXs().get(0)
                     || pos1.getX() > Screen.grid.getXs().get(14)) {
-                return split;
+                return true;
             }
             if (pos2.getX() < Screen.grid.getXs().get(0)
                     || pos2.getX() > Screen.grid.getXs().get(14)) {
-                return split;
+                return true;
             }
             if (pos3.getX() < Screen.grid.getXs().get(0)
                     || pos3.getX() > Screen.grid.getXs().get(14)) {
-                return split;
+                return true;
             }
             if (pos1.getY() < Screen.grid.getYs().get(0)
                     || pos1.getY() > Screen.grid.getYs().get(14)) {
-                return split;
+                return true;
             }
             if (pos2.getY() < Screen.grid.getYs().get(0)
                     || pos2.getY() > Screen.grid.getYs().get(14)) {
-                return split;
+                return true;
             }
             if (pos3.getY() < Screen.grid.getYs().get(0)
                     || pos3.getY() > Screen.grid.getYs().get(14)) {
-                return split;
+                return true;
             }
-            for (RectSprite body : Screen.head.getBody()) {
-                if (pos1.intsEqual(body.getPos()) && Screen.head.getBody().size() - Screen.head.getBody().indexOf(body) > 1) {
-                    return split;
+            for (RectSprite body : head.getBody()) {
+                if (pos1.intsEqual(body.getPos()) && head.getBody().size() - head.getBody().indexOf(body) > 1) {
+                    return true;
                 }
-                if (pos2.intsEqual(body.getPos()) && Screen.head.getBody().size() - Screen.head.getBody().indexOf(body) > 1) {
-                    return split;
+                if (pos2.intsEqual(body.getPos()) && head.getBody().size() - head.getBody().indexOf(body) > 1) {
+                    return true;
                 }
-                if (pos3.intsEqual(body.getPos()) && Screen.head.getBody().size() - Screen.head.getBody().indexOf(body) > 1) {
-                    return split;
+                if (pos3.intsEqual(body.getPos()) && head.getBody().size() - head.getBody().indexOf(body) > 1) {
+                    return true;
                 }
             }
         }
-        return 0;
+        return false;
     }
 
     //determines if the snake would be surrounded in a given direction
-    public static double surrounded(String dir) {
-        if (availableSquares(Screen.head.getPos().add(dir, Screen.grid)).size() < (224 - Screen.head.getBody().size()) * .5) {
-            return surrounded;
+    public static boolean surrounded(Head head, String dir) {
+        if (availableSquares(head, head.getPos().add(dir, Screen.grid)).size() < (224 - head.getBody().size()) * .5) {
+            return true;
         }
-        return 0;
+        return false;
     }
 
     //returns the available squares from a given location
-    public static ArrayList<Position> availableSquares(Position start) {
+    public static ArrayList<Position> availableSquares(Head head, Position start) {
         boolean running = true;
         ArrayList<Position> squares = new ArrayList<>();
         squares.add(start);
@@ -394,27 +423,27 @@ public class DangerCake {
                 }
 
                 //checks if direction is in the head
-                if (nPos.intsEqual(Screen.head.getPos())) {
+                if (nPos.intsEqual(head.getPos())) {
                     nOK = false;
                 }
-                if (sPos.intsEqual(Screen.head.getPos())) {
+                if (sPos.intsEqual(head.getPos())) {
                     sOK = false;
                 }
-                if (ePos.intsEqual(Screen.head.getPos())) {
+                if (ePos.intsEqual(head.getPos())) {
                     eOK = false;
                 }
-                if (wPos.intsEqual(Screen.head.getPos())) {
+                if (wPos.intsEqual(head.getPos())) {
                     wOK = false;
                 }
 
                 //checks if direction is in the body
-                for (RectSprite bodies : Screen.head.getBody()) {
+                for (RectSprite bodies : head.getBody()) {
                     Position pos = bodies.getPos();
-                    int distance = ((Math.abs(pos.getX() - Screen.head.getPos().getX()) + Math.abs(pos.getY() - Screen.head.getPos().getY())) / 50);
-                    if (pos.getX() != Screen.head.getPos().getX() && pos.getY() != Screen.head.getPos().getY()) {
+                    int distance = ((Math.abs(pos.getX() - head.getPos().getX()) + Math.abs(pos.getY() - head.getPos().getY())) / 50);
+                    if (pos.getX() != head.getPos().getX() && pos.getY() != head.getPos().getY()) {
                         distance--;
                     }
-                    if (!(distance >= Screen.head.getBody().size() - Screen.head.getBody().indexOf(bodies))) {
+                    if (!(distance >= head.getBody().size() - head.getBody().indexOf(bodies))) {
                         if (nPos.intsEqual(pos)) {
                             nOK = false;
                         }
@@ -486,22 +515,22 @@ public class DangerCake {
     }
 
     //determines if the snake will die in a given direction
-    public static double death(String dir) {
-        Position pos = Screen.head.getPos().add(dir, Screen.grid);
+    public static boolean death(Head head, String dir) {
+        Position pos = head.getPos().add(dir, Screen.grid);
 
         if (pos.getX() < Screen.grid.getXs().get(0)
                 || pos.getX() > Screen.grid.getXs().get(14)) {
-            return death;
+            return true;
         }
         if (pos.getY() < Screen.grid.getYs().get(0)
                 || pos.getY() > Screen.grid.getYs().get(14)) {
-            return death;
+            return true;
         }
-        for (RectSprite body : Screen.head.getBody()) {
-            if (pos.intsEqual(body.getPos()) && Screen.head.getBody().size() - Screen.head.getBody().indexOf(body) > 1) {
-                return death;
+        for (RectSprite body : head.getBody()) {
+            if (pos.intsEqual(body.getPos()) && head.getBody().size() - head.getBody().indexOf(body) > 1) {
+                return true;
             }
         }
-        return 0;
+        return false;
     }
 }

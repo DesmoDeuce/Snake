@@ -8,13 +8,19 @@ import Libraries.Sprites.RectSprite;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Head extends RectSprite {
 
+    public static ArrayList<Head> heads = new ArrayList<>();
+
     private String dir;
     private ArrayList<RectSprite> body;
     private String next;
+    private RectSprite apple;
+    private int score;
+    private boolean alive;
 
 
     public Head(Position pos, Size size, Color color, String dir) {
@@ -22,6 +28,16 @@ public class Head extends RectSprite {
         this.dir = dir;
         body = new ArrayList<>();
         next = dir;
+        apple = new RectSprite(Screen.grid.getPoss().get(new Random().nextInt(Screen.grid.getPoss().size())), Screen.grid.getRectSize(), false, Color.RED);
+        score = 0;
+        alive = true;
+        heads.add(this);
+    }
+
+    @Override
+    public void draw(Graphics2D graphics) {
+        apple.draw(graphics);
+        super.draw(graphics);
     }
 
     public void keyPressed(KeyEvent e) {
@@ -77,10 +93,11 @@ public class Head extends RectSprite {
             die();
         }
 
-        if (getPos().getX() == Screen.apple.getPos().getX() && getPos().getY() == Screen.apple.getPos().getY()) {
+        if (getPos().getX() == apple.getPos().getX() && getPos().getY() == apple.getPos().getY()) {
             grow();
             Screen.score++;
-            Snake.snake.setTitle("Snake | Score: " + Screen.score);
+            //Snake.snake.setTitle("Snake | Score: " + Screen.score);
+            score++;
 
             ArrayList<Position> open = Screen.grid.getPoss();
             ArrayList<Position> remove = new ArrayList<>();
@@ -95,19 +112,22 @@ public class Head extends RectSprite {
             for (Position position : remove) {
                 open.remove(position);
             }
-            Screen.apple.setPos(open.get(new Random().nextInt(open.size())));
+            apple.setPos(open.get(new Random().nextInt(open.size())));
         }
     }
 
     public void die() {
-        Screen.running = false;
-        Screen.dead = true;
-        /*
+        alive = false;
+    }
+
+    public void revive() {
         Screen.score = 0;
-        setPos(new Position(Screen.grid.getPoss().get(112).getX(), Screen.grid.getPoss().get(112).getY()));
+        score = 0;
+        setPos(new Position(Screen.grid.getXs().get(7), Screen.grid.getYs().get(7)));
         setDir(Directions.EAST);
         body.clear();
-        */
+        alive = true;
+        apple.setPos(Screen.grid.getPoss().get(new Random().nextInt(Screen.grid.getPoss().size())));
     }
 
     public void grow() {
@@ -130,6 +150,18 @@ public class Head extends RectSprite {
         return next;
     }
 
+    public RectSprite getApple() {
+        return apple;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
     public void setDir(String dir) {
         this.dir = dir;
     }
@@ -140,5 +172,17 @@ public class Head extends RectSprite {
 
     public void setNext(String next) {
         this.next = next;
+    }
+
+    public void setApple(RectSprite apple) {
+        this.apple = apple;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
     }
 }
